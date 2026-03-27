@@ -118,11 +118,38 @@ CREATE TABLE IF NOT EXISTS salaires (
   UNIQUE KEY unique_salaire (teacher_id, mois, annee)
 );
 
--- Vérifier
+CREATE TABLE IF NOT EXISTS paiements (
+  id            INT AUTO_INCREMENT PRIMARY KEY,
+  parent_id     INT NOT NULL,
+  student_id    INT NOT NULL,
+  montant_total DECIMAL(10,2) NOT NULL,
+  montant_paye  DECIMAL(10,2) DEFAULT 0,
+  recu_image    VARCHAR(255),
+  statut        ENUM('en_attente','partiel','complet') DEFAULT 'en_attente',
+  date_paiement DATE,
+  created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (parent_id)  REFERENCES users(id)    ON DELETE CASCADE,
+  FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE
+);
+
+-- ── Notifications ────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS notifications (
+  id              INT AUTO_INCREMENT PRIMARY KEY,
+  expediteur_id   INT,
+  destinataire_id INT NOT NULL,
+  sujet           VARCHAR(255),
+  message         TEXT NOT NULL,
+  lu              BOOLEAN DEFAULT FALSE,
+  created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (destinataire_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+SHOW TABLES;
+DESCRIBE notifications;
+ 
 SHOW TABLES;
 
--- Les autres tables (notes, paiements, salaires) suivent ici...
--- Données de test
 INSERT INTO salles (nom, capacite) VALUES ('Salle A', 30), ('Salle B', 25),('Salle C', 30), ('Salle D', 25),('Salle E', 30), ('Salle F', 25);
 INSERT INTO classes (nom, niveau, salle_id) VALUES ('CP', 'Primaire', 1), ('CE1', 'Primaire', 2),('SIL', 'Primaire', 3), ('CE2', 'Primaire', 4),('CM1', 'Primaire', 5), ('CM2', 'Primaire', 6);
 
@@ -137,8 +164,25 @@ AFTER role;
 
 USE school_db;
 
--- 1. Voir toutes les colonnes de users
+
 select *from salles ;
 
--- 2. Voir exactement quelles colonnes existent
+
 SHOW COLUMNS FROM users;
+
+USE school_db;
+ 
+
+SHOW TABLES;
+ 
+
+
+ 
+-- Vérifier la structure
+DESCRIBE paiements;
+ 
+-- Vérifier si des parents existent (nécessaire pour les paiements)
+SELECT id, nom, prenom, role, statut FROM users WHERE role = 'parent';
+ 
+-- Vérifier si des élèves existent
+SELECT id, nom, prenom, parent_id FROM students;

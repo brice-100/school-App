@@ -19,18 +19,17 @@ app.use((req, _res, next) => {
   next()
 })
 
-// Charger une route avec log pour détecter les erreurs au démarrage
 function loadRoute(routePath, filePath) {
   try {
-    const router = require(filePath)
-    app.use(routePath, router)
-    console.log(`✅ Route chargée : ${routePath}`)
+    app.use(routePath, require(filePath))
+    console.log(`✅ ${routePath}`)
   } catch (err) {
-    console.error(`❌ ERREUR chargement route ${routePath} : ${err.message}`)
+    console.error(`❌ ERREUR route ${routePath} :`, err.message)
+    console.error(`   Fichier : ${filePath}`)
   }
 }
 
-// ── Routes phases 1 & 2 ──────────────────────────────────────────
+// ── Phases 1 & 2 ─────────────────────────────────────────────────
 loadRoute('/api/auth',     './routes/auth.routes')
 loadRoute('/api/users',    './routes/user.routes')
 loadRoute('/api/students', './routes/student.routes')
@@ -39,11 +38,15 @@ loadRoute('/api/parents',  './routes/parent.routes')
 loadRoute('/api/payments', './routes/payment.routes')
 loadRoute('/api',          './routes/reference.routes')
 
-// ── Routes phase 3 ───────────────────────────────────────────────
+// ── Phase 3 ───────────────────────────────────────────────────────
 loadRoute('/api/grades',    './routes/grade.routes')
 loadRoute('/api/planning',  './routes/planning.routes')
 loadRoute('/api/bulletins', './routes/bulletin.routes')
 loadRoute('/api/salaries',  './routes/salary.routes')
+
+// ── Phase 4 ───────────────────────────────────────────────────────
+loadRoute('/api/stats',         './routes/stats.routes')
+loadRoute('/api/notifications', './routes/notification.routes')
 
 app.get('/api/health', (_req, res) =>
   res.json({ success: true, message: 'Serveur OK ✅' })
@@ -57,9 +60,8 @@ app.use((req, res) => {
 app.use((err, _req, res, _next) => {
   console.error('══════════════════════════════════')
   console.error('[ERREUR]',   err.message)
-  console.error('[CODE SQL]', err.code      || '—')
-  console.error('[MSG SQL]',  err.sqlMessage || '—')
-  console.error('[STACK]',    err.stack?.split('\n')[1] || '—')
+  console.error('[SQL CODE]', err.code       || '—')
+  console.error('[SQL MSG]',  err.sqlMessage || '—')
   console.error('══════════════════════════════════')
   res.status(500).json({ success: false, message: err.message || 'Erreur interne.' })
 })
