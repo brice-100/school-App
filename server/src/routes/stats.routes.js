@@ -1,6 +1,6 @@
 const express      = require('express')
 const router       = express.Router()
-const ctrl         = require('../controllers/StatController')
+const ctrl         = require('../controllers/statController')
 const authenticate = require('../middleware/authMiddleware')
 const authorize    = require('../middleware/roleMiddleware')
 
