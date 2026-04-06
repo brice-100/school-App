@@ -24,7 +24,7 @@ function loadRoute(routePath, filePath) {
     app.use(routePath, require(filePath))
     console.log(`✅ ${routePath}`)
   } catch (err) {
-    console.error(`❌ ERREUR route ${routePath} :`, err.message)
+    console.error(` ERREUR route ${routePath} :`, err.message)
     console.error(`   Fichier : ${filePath}`)
   }
 }
